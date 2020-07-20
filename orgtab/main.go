@@ -21,10 +21,6 @@ const header = `\begin{table}[ht]
 \label{tab:}
 \begin{tabular}`
 
-const footer = `\end{tabular}
-\end{table}
-`
-
 var (
 	print = flag.Bool("p", false, "instead of writing the files print to stdout")
 )
@@ -59,6 +55,7 @@ func main() {
 		ncol    int
 		tbl     bool
 		next    bool
+		endtab  bool
 		buf     bytes.Buffer
 		scanner *bufio.Scanner
 	)
@@ -88,6 +85,7 @@ func main() {
 		switch {
 		case strings.Contains(line, "#+tblname:"):
 			next = true
+			endtab = false
 			fields := strings.Fields(line)
 			if len(fields) < 2 {
 				panic("tblname not found")
@@ -101,7 +99,10 @@ func main() {
 			tbl = true
 		case tbl && empty.MatchString(line):
 			tbl = false
-			fmt.Fprintln(&buf, footer)
+			if !endtab {
+				fmt.Fprintln(&buf, "\\end{tabular}")
+			}
+			fmt.Fprintln(&buf, "\\end{table}")
 			if !*print {
 				err := ioutil.WriteFile(outfile, buf.Bytes(), 0755)
 				if err != nil {
@@ -113,12 +114,20 @@ func main() {
 			buf.Reset()
 		case tbl && strings.Contains(line, "---"):
 			fmt.Fprintln(&buf, "\\hline")
-		case tbl:
+		case tbl && strings.Contains(line, "|"):
 			line = strings.TrimLeft(line, " |")
 			line = strings.TrimRight(line, " |")
 			line = strings.ReplaceAll(line, "|", "&")
-			if split := strings.Split(line, "&"); len(split) < ncol {
+			split := strings.Split(line, "&")
+			for len(split) < ncol {
 				line = " & " + line
+				split = strings.Split(line, "&")
+			}
+			fmt.Fprintln(&buf, line+"\\\\")
+		case tbl:
+			if !endtab {
+				fmt.Fprintln(&buf, "\\end{tabular}")
+				endtab = true
 			}
 			fmt.Fprintln(&buf, line+"\\\\")
 		}
