@@ -25,11 +25,30 @@ C$_2$H             & $B$ &   44187.6 & 43702.2  & 43674.5 & 27.7 & 27.7  & 0.0 \
 			},
 			widths: []int{7, 3, 7, 7, 7, 5, 4, 6},
 		},
+
+		{
+			text: `A$_0$, B$_0$, \& C$_0$ & MHz & 536.5 \\
+B$_0$ \& C$_0$ & MHz & 93.2 \\`,
+			lines: [][]string{
+				{"A$_0$, B$_0$, \\& C$_0$", "MHz", "536.5 \\\\"},
+				{"B$_0$ \\& C$_0$", "MHz", "93.2 \\\\"},
+			},
+			widths: []int{22, 3, 8},
+		},
+		{
+			text: `&  & \multicolumn{2}{c}{CcCR} & \\
+Molecule &  & Equil. & Vib.~Avg. & Experiment & Difference & $\vert$Diff.$\vert$ & \% Error$^a$\\`,
+			lines: [][]string{
+				{"", "", "\\multicolumn{2}{c}{CcCR}", "\\\\"},
+				{"Molecule", "", "Equil.", "Vib.~Avg.", "Experiment", "Difference", "$\\vert$Diff.$\\vert$", "\\% Error$^a$\\\\"},
+			},
+			widths: []int{8, 0, 6, 9, 10, 10, 19, 14},
+		},
 	}
 	for _, test := range tests {
 		lines, widths := ParseTab(test.text)
 		if !reflect.DeepEqual(test.lines, lines) {
-			t.Errorf("got\n%v,\nwanted\n%v\n", lines, test.lines)
+			t.Errorf("got\n%q,\nwanted\n%q\n", lines, test.lines)
 		} else if !reflect.DeepEqual(test.widths, widths) {
 			t.Errorf("got\n%v,\nwanted\n%v\n", widths, test.widths)
 		}
