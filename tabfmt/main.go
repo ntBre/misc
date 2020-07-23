@@ -1,3 +1,5 @@
+// TODO handle literal ampersands
+// TODO handle multicol
 package main
 
 import (

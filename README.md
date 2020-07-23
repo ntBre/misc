@@ -11,3 +11,7 @@ files I add to my references directory
 
 ## tabfmt
 tabfmt formats columns LaTeX tables based on the width of their widest cells
+
+## fctab
+fctab formats force constants from Spectro input files into LaTeX
+tables for reporting in SI sections of papers
