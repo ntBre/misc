@@ -17,19 +17,24 @@ const (
 	nodeMax = 116
 	nodeFmt = "%03d"
 	nodePfx = "cn"
+	// 6 is the size of an empty directory in these units
+	minBytes = 6
 )
 
 var (
 	count = flag.Bool("c", false, "Count tmp usage but do not remove")
 	dir   = flag.String("d", "/tmp/", "Specify the tmp directory to clean")
+	force = flag.Bool("f", false, "Force, do not prompt")
+	max   = flag.Int("m", 10, "Maximum number of concurrent processes")
+	prog  = flag.Bool("p", false, "Print progress")
 	user  = flag.String("u", "$USER", "Specify the user")
 	dry   = flag.Bool("y", false, "Do a dry run, printing the commands to be run but not executing them")
 )
 
 func clean(node string, wg *sync.WaitGroup) (bytes int) {
 	defer wg.Done()
-	du := exec.Command("ssh", node, "-t", "du", "-bs", *dir+*user)
-	rm := exec.Command("ssh", node, "-t", "rm", "-rf", *dir+*user)
+	du := exec.Command("ssh", "-o", "BatchMode=yes", node, "-t", "du", "-bs", *dir+*user)
+	rm := exec.Command("ssh", "-o", "BatchMode=yes", node, "-t", "rm", "-rf", *dir+*user)
 	if *dry {
 		fmt.Println(du.String())
 		fmt.Println(rm.String())
@@ -45,7 +50,7 @@ func clean(node string, wg *sync.WaitGroup) (bytes int) {
 	if *count {
 		return
 	}
-	if bytes > 0 {
+	if bytes > minBytes {
 		err := rm.Run()
 		if err != nil {
 			panic(err)
@@ -55,18 +60,16 @@ func clean(node string, wg *sync.WaitGroup) (bytes int) {
 }
 
 func prompt() {
-	if !(*dry || *count) {
-		fmt.Print("Are you sure you want to delete all tmp directories?\n")
-		fmt.Print("This will disrupt all running jobs. [y/N] ")
-		scanner := bufio.NewScanner(os.Stdin)
-		scanner.Scan()
-		switch scanner.Text() {
-		case "Y", "y", "yes":
-			return
-		default:
-			fmt.Println("Aborting")
-			os.Exit(1)
-		}
+	fmt.Print("Are you sure you want to delete all tmp directories?\n")
+	fmt.Print("This will disrupt all running jobs. [y/N] ")
+	scanner := bufio.NewScanner(os.Stdin)
+	scanner.Scan()
+	switch scanner.Text() {
+	case "Y", "y", "yes":
+		return
+	default:
+		fmt.Println("Aborting")
+		os.Exit(1)
 	}
 }
 
@@ -84,24 +87,33 @@ func NewLockMap() *LockMap {
 func main() {
 	flag.Parse()
 	var (
-		node  string
-		wg    sync.WaitGroup
-		bytes int
+		node     string
+		wg       sync.WaitGroup
+		bytes    int
+		finished int
 	)
-	prompt()
+	if !(*force || *dry || *count) {
+		prompt()
+	}
 	nodeMap := NewLockMap()
-	*dry = true
+	sema := make(chan struct{}, *max)
 	for i := nodeMin; i <= nodeMax; i++ {
 		node = fmt.Sprintf(nodePfx+nodeFmt, i)
 		wg.Add(1)
+		sema <- struct{}{}
 		go func(node string) {
 			b := clean(node, &wg)
-			if b > 0 {
+			if b > minBytes {
 				nodeMap.Lock()
 				nodeMap.Map[node] = b
 				nodeMap.Unlock()
 				bytes += b
 			}
+			finished++
+			if *prog {
+				fmt.Printf("finished %d out of %d\n", finished, nodeMax)
+			}
+			<-sema
 		}(node)
 	}
 	wg.Wait()
