@@ -21,3 +21,10 @@ regexpl is a simple command line regex tester for Go
 
 ## tmpcln
 tmpcln is a utility for deleting tmp files on the nodes on Maple
+
+## matrview
+matrview is a tool for viewing what parts of matrices meet
+conditions. I used it for deriving expressions for the number of
+points a Cartesian pbqff calculation would entail, so it's pretty
+cluttered from that.  The actual matrix visualization part may be more
+broadly applicable though.
