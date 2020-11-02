@@ -232,7 +232,6 @@ func d4formula(n int) int {
 
 func total(n int) int {
 	return 2*n*(n*n*n + 2*n*n + 8*n + 1)/3
-	return 2*n*n + (4*n*n*n+6*n*n+2*n)/3 + (2*n*n*n*n+4*n*n)/3
 }
 
 func main() {
