@@ -28,3 +28,7 @@ conditions. I used it for deriving expressions for the number of
 points a Cartesian pbqff calculation would entail, so it's pretty
 cluttered from that.  The actual matrix visualization part may be more
 broadly applicable though.
+
+## stripcite
+stripcite is a very basic tool for grabbing the \cite{} commands out
+of a LaTeX document
