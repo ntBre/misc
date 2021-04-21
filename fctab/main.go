@@ -200,8 +200,8 @@ func header(cont bool) string {
 	return buf.String()
 }
 
-const footer = `\end{table}
-\end{tabular}
+const footer = `\end{tabular}
+\end{table}
 `
 
 func main() {

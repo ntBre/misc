@@ -1,3 +1,5 @@
+// TODO handle \citenum etc with regex
+// TODO skip citations in comments, check if index of % is less than sid
 package main
 
 import (
