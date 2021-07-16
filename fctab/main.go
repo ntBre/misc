@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -209,10 +210,16 @@ const footer = `\end{tabular}
 
 func main() {
 	parseFlag()
+	dir := "."
+	args := flag.Args()
+	if len(args) == 1 {
+		dir = args[0]
+	}
 	files := []string{"fort.15", "fort.30", "fort.40"}
 	funcs := []func(string) []string{Read15, Read30, Read40}
 	fcs := make([]string, 0)
 	for i, file := range files {
+		file = filepath.Join(dir, file)
 		if _, err := os.Stat(file); os.IsNotExist(err) {
 			fmt.Fprintf(os.Stderr, "file %s does not exist, aborting\n",
 				file)
