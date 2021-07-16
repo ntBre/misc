@@ -55,9 +55,10 @@ func Read15(filename string) (fcs []string) {
 			continue
 		}
 		for _, v := range fields {
+			f, _ := strconv.ParseFloat(v, 64)
 			fcs = append(fcs,
-				fmt.Sprintf("$F_{%d,%d}$ & %s",
-					row, col, v))
+				fmt.Sprintf("$F_{%d,%d}$ & %.6f",
+					row, col, f))
 			if col <= dim {
 				col++
 			} else {
@@ -112,9 +113,10 @@ func Read30(filename string) (fcs []string) {
 		}
 		for _, v := range fields {
 			list := conv[count]
+			f, _ := strconv.ParseFloat(v, 64)
 			fcs = append(fcs,
-				fmt.Sprintf("$F_{%d,%d,%d}$ & %s",
-					list[0], list[1], list[2], v))
+				fmt.Sprintf("$F_{%d,%d,%d}$ & %.4f",
+					list[0], list[1], list[2], f))
 			count++
 		}
 	}
@@ -172,9 +174,10 @@ func Read40(filename string) (fcs []string) {
 		}
 		for _, v := range fields {
 			list := conv[count]
+			f, _ := strconv.ParseFloat(v, 64)
 			fcs = append(fcs,
-				fmt.Sprintf("$F_{%d,%d,%d,%d}$ & %s",
-					list[0], list[1], list[2], list[3], v))
+				fmt.Sprintf("$F_{%d,%d,%d,%d}$ & %.2f",
+					list[0], list[1], list[2], list[3], f))
 			count++
 		}
 	}
