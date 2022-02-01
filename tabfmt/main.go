@@ -58,6 +58,10 @@ func WriteTab(w io.Writer, lines [][]string, widths []int) {
 			fmt.Fprintln(w, line[0])
 			continue
 		}
+		if len(line) == 1 && strings.Contains(line[0], "\\end{tabular}") {
+			fmt.Fprint(w, line[0])
+			continue
+		}
 		for c, col := range line {
 			w := strconv.Itoa(widths[c])
 			if c == 0 {
