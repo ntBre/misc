@@ -17,26 +17,30 @@ const amp = "amp;"
 // of each column as a []int
 func ParseTab(input string) (lines [][]string, widths []int) {
 	text := strings.Split(input, "\n")
-	start := true
+	var split []string
 	for _, line := range text {
 		line = strings.ReplaceAll(line, "\\&", amp)
-		split := strings.Split(line, "&")
-		if strings.Contains(line, "multicolumn") {
+		split = strings.Split(line, "&")
+		switch {
+		case strings.Contains(line, "multicolumn"):
 			for c := range split {
 				split[c] = strings.TrimSpace(split[c])
 			}
-			lines = append(lines, split)
-			continue
-		}
-		if start {
-			widths = make([]int, len(split), len(split))
-			start = false
-		}
-		for c := range split {
-			split[c] = strings.TrimSpace(split[c])
-			split[c] = strings.ReplaceAll(split[c], amp, "\\&")
-			if clen := len(split[c]); clen > widths[c] {
-				widths[c] = clen
+		case strings.Contains(line, "\\begin{tabular}"):
+		case strings.Contains(line, "\\end{tabular}"):
+		default:
+			// extend widths by the difference
+			ls := len(split)
+			lw := len(widths)
+			if ls > lw {
+				widths = append(widths, make([]int, ls-lw)...)
+			}
+			for c := range split {
+				split[c] = strings.TrimSpace(split[c])
+				split[c] = strings.ReplaceAll(split[c], amp, "\\&")
+				if clen := len(split[c]); clen > widths[c] {
+					widths[c] = clen
+				}
 			}
 		}
 		lines = append(lines, split)
@@ -49,6 +53,10 @@ func WriteTab(w io.Writer, lines [][]string, widths []int) {
 	var buf bytes.Buffer
 	for _, line := range lines {
 		buf.Reset()
+		if len(line) == 1 && strings.Contains(line[0], "\\hline") {
+			fmt.Fprintln(w, line[0])
+			continue
+		}
 		for c, col := range line {
 			w := strconv.Itoa(widths[c])
 			if c == 0 {
@@ -71,5 +79,5 @@ func main() {
 		panic(err)
 	}
 	lines, widths := ParseTab(string(input))
-	WriteTab(os.Stdout, lines[:len(lines)-1], widths)
+	WriteTab(os.Stdout, lines, widths)
 }
