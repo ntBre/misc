@@ -98,7 +98,6 @@ Molecule &  & Equil. & Vib.~Avg. & Experiment & Difference & $\vert$Diff.$\vert$
 				{`$\nu_{8}$`, "$e$", "H trapezoidal deformation", "", "489.8", `\\`},
 				{`\hline`},
 				{`\end{tabular}`},
-				{""},
 			},
 			widths: []int{
 				12, 5, 25, 4, 7, 2,

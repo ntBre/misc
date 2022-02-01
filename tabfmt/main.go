@@ -16,7 +16,8 @@ const amp = "amp;"
 // returns those lines as a [][]string, along with the maximum widths
 // of each column as a []int
 func ParseTab(input string) (lines [][]string, widths []int) {
-	text := strings.Split(input, "\n")
+	text := strings.Split(
+		strings.TrimSpace(input), "\n")
 	var split []string
 	for _, line := range text {
 		line = strings.ReplaceAll(line, "\\&", amp)
