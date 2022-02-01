@@ -1,0 +1,74 @@
+* misc
+  Miscellaneous command line tools written in Go
+
+** tabfmt
+   tabfmt formats LaTeX tables based on the width of their widest
+   cells
+
+*** Installation
+
+    #+begin_src shell
+      go install github.com/ntBre/misc/tabfmt
+    #+end_src
+
+*** Usage
+
+    =tabfmt= just reads from Stdin and writes to Stdout, so you can do
+    something like this:
+
+    #+begin_src shell
+      tabfmt < table.tex > new_table.tex
+    #+end_src
+
+    but the intended usage is inside of your editor. In Vim or Emacs
+    evil-mode, you can select a table visually and filter it through
+    =tabfmt=, assuming it is on your PATH, with something like
+
+    #+begin_src text
+      :'<,'>!tabfmt
+    #+end_src
+
+    For Emacs, I use the following function:
+
+    #+begin_src emacs-lisp
+      (defun tabfmt ()
+	"format a LaTeX table using the tabfmt program"
+	(interactive)
+	(save-excursion
+	  (let ((start (search-backward "\\begin{tabular}"))
+		(end (search-forward "\\end{tabular}")))
+	    (shell-command-on-region start end "tabfmt" 'replace 'no-mark))))
+    #+end_src
+
+    You probably need to include =(add-to-list 'exec-path "~/go/bin")=
+    somewhere in your init file for Emacs to find the =tabfmt=
+    executable too, assuming =~/go/bin= is your GOBIN directory.
+
+** orgtab
+   orgtab converts Emacs org-mode tables to LaTeX tables
+
+** pdfinfgo
+   pdfinfgo converts the output of `pdfinfo` to a format useable by BibTex.
+   I use it along with `entr` to automatically generate citations for PDF
+   files I add to my references directory
+
+** fctab
+   fctab formats force constants from Spectro input files into LaTeX
+   tables for reporting in SI sections of papers
+
+** regexpl
+   regexpl is a simple command line regex tester for Go
+
+** tmpcln
+   tmpcln is a utility for deleting tmp files on the nodes on Maple
+
+** matrview
+   matrview is a tool for viewing what parts of matrices meet
+   conditions. I used it for deriving expressions for the number of
+   points a Cartesian pbqff calculation would entail, so it's pretty
+   cluttered from that.  The actual matrix visualization part may be more
+   broadly applicable though.
+
+** stripcite
+   stripcite is a very basic tool for grabbing the \cite{} commands out
+   of a LaTeX document
